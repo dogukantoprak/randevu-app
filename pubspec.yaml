@@ -1,0 +1,35 @@
+name: randevu_app
+description: "A new Flutter project for Appointment & Reservation System"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  flutter_riverpod: ^2.4.9
+  
+  # Routing
+  go_router: ^13.1.0
+  
+  # Networking
+  dio: ^5.4.0
+  
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  
+  # Utilities
+  intl: ^0.19.0
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
