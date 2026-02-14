@@ -105,21 +105,18 @@ lib/
 
 ---
 
-## 🚧 Work in Progress
+## 🗺️ Roadmap
 
-The following features are **scaffolded but not yet connected to a live backend**:
+Planned features for upcoming releases:
 
-- [ ] Real API integration (currently uses mock delays)
-- [ ] Appointment booking flow (create, confirm, cancel)
-- [ ] Push notifications for booking reminders
-- [ ] Service CRUD operations with backend persistence
-- [ ] User profile editing
-- [ ] Business hours configuration
-- [ ] Staff management
-- [ ] Search and filtering for services
-- [ ] Appointment calendar with date picker
-- [ ] Form validation (email format, required fields)
-- [ ] Unit and widget tests
+- 🔗 Backend API integration (REST / Firebase / Supabase)
+- 📆 Interactive appointment calendar with date & time picker
+- 🔔 Push notifications via Firebase Cloud Messaging
+- 🔍 Service search and filtering
+- 💳 In-app payment integration
+- 📊 Business analytics dashboard
+- 🌍 Multi-language support (TR / EN)
+- 🧪 Unit and widget test coverage
 
 ---
 
@@ -135,7 +132,7 @@ The following features are **scaffolded but not yet connected to a live backend*
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/<your-username>/randevu-app.git
+git clone https://github.com/dogukantoprak/randevu-app.git
 cd randevu-app
 
 # 2. Install dependencies
@@ -163,20 +160,6 @@ flutter run -d android
 ```bash
 flutter run -d ios
 ```
-
----
-
-## Future Improvements
-
-- 🔗 **Backend Integration** — Connect to a REST API (Node.js / Django / Firebase)
-- 📆 **Calendar Widget** — Interactive date/time picker for appointments
-- 🔔 **Notifications** — Push notifications via Firebase Cloud Messaging
-- 🔍 **Search & Filters** — Search services by category, price, rating
-- 💳 **Payments** — Integrate Stripe or similar for in-app payments
-- 📊 **Analytics Dashboard** — Business owner insights (bookings, revenue)
-- 🌍 **Localization** — Multi-language support (TR, EN)
-- 🧪 **Testing** — Unit, widget, and integration tests
-- 🎨 **UI Polish** — Custom animations, onboarding flow, splash screen
 
 ---
 
