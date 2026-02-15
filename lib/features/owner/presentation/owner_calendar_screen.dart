@@ -1,42 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../customer/data/appointment_repository.dart';
+import '../../customer/domain/appointment_model.dart';
 
-class OwnerCalendarScreen extends StatelessWidget {
+class OwnerCalendarScreen extends ConsumerWidget {
   const OwnerCalendarScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appointmentsAsync = ref.watch(myAppointmentsProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendar'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primaryStart.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.today_rounded, color: AppColors.primaryStart),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Date chips
-            SizedBox(
+      body: Column(
+        children: [
+           // Date chips (visual only for now)
+           Padding(
+             padding: const EdgeInsets.all(20),
+             child: SizedBox(
               height: 80,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: 7,
                 itemBuilder: (context, index) {
+                  final now = DateTime.now();
+                  final date = now.add(Duration(days: index));
                   final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                  final isSelected = index == 2;
+                  final dayName = days[date.weekday - 1]; // 1-7, mapped to 0-6 array? No, simpler
+                  
+                  // Simple mapping
+                  // weekday 1=Mon, 7=Sun
+                  
+                  final isSelected = index == 0; // Today selected
+                  
                   return Container(
                     width: 56,
                     margin: const EdgeInsets.only(right: 12),
@@ -63,7 +62,7 @@ class OwnerCalendarScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          days[index],
+                          dayName, // Just simple day name
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -72,7 +71,7 @@ class OwnerCalendarScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${15 + index}',
+                          '${date.day}',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -85,75 +84,119 @@ class OwnerCalendarScreen extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 28),
-
-            // Empty state
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryStart.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: const Icon(
-                        Icons.event_available_rounded,
-                        size: 48,
-                        color: AppColors.primaryStart,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'No bookings for today',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
+           ),
+          
+          Expanded(
+            child: appointmentsAsync.when(
+              data: (appointments) {
+                if (appointments.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                         Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            shape: BoxShape.circle,
                           ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Your schedule is clear for this day',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: const Color(0xFF6B6B8D),
-                          ),
-                    ),
-                    const SizedBox(height: 32),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryStart.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.add_rounded, color: Colors.white),
-                        label: const Text(
-                          'Add Booking',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          child: Icon(Icons.event_busy_rounded, size: 40, color: Colors.grey.shade400),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                        ),
-                      ),
+                        const SizedBox(height: 16),
+                        Text('No bookings found', style: TextStyle(color: Colors.grey.shade500)),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  );
+                }
+                
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+                  itemCount: appointments.length,
+                  itemBuilder: (context, index) {
+                    final apt = appointments[index];
+                    return _OwnerAppointmentCard(appointment: apt);
+                  },
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class _OwnerAppointmentCard extends StatelessWidget {
+  final AppointmentModel appointment;
+
+  const _OwnerAppointmentCard({required this.appointment});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+      ),
+      child: Row(
+        children: [
+          Container(
+             width: 4, height: 40,
+             decoration: BoxDecoration(
+               color: appointment.status == 'cancelled' ? Colors.red : AppColors.primaryStart,
+               borderRadius: BorderRadius.circular(2),
+             ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  appointment.serviceName,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                Text(
+                  _formatDate(appointment.dateTime),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '\$${appointment.price.toStringAsFixed(0)}',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              ),
+              Text(
+                appointment.status,
+                style: TextStyle(
+                  fontSize: 12, 
+                  color: appointment.status == 'cancelled' ? Colors.red : Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  String _formatDate(DateTime date) {
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+    return '${date.day} ${_monthName(date.month)} • $hour:$minute';
+  }
+  
+  String _monthName(int month) => 
+      ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month-1];
 }

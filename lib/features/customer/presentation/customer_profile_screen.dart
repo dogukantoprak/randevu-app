@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../../core/theme/app_theme.dart';
+import '../data/appointment_repository.dart';
 
 class CustomerProfileScreen extends ConsumerWidget {
   const CustomerProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
+    final appointmentsAsync = ref.watch(myAppointmentsProvider);
+    final bookingsCount = appointmentsAsync.asData?.value.length ?? 0;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: SingleChildScrollView(
@@ -31,7 +36,7 @@ class CustomerProfileScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  Container(
+                   Container(
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
@@ -41,9 +46,9 @@ class CustomerProfileScreen extends ConsumerWidget {
                     child: const Icon(Icons.person_rounded, size: 44, color: Colors.white),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Customer Name',
-                    style: TextStyle(
+                  Text(
+                    authState.userProfile?.email.split('@')[0] ?? 'Customer Name',
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -51,7 +56,7 @@ class CustomerProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'customer@email.com',
+                    authState.userProfile?.email ?? 'customer@email.com',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withOpacity(0.8),
@@ -67,7 +72,7 @@ class CustomerProfileScreen extends ConsumerWidget {
               children: [
                 _StatCard(
                   icon: Icons.calendar_month_rounded,
-                  value: '0',
+                  value: '$bookingsCount', // Real data
                   label: 'Bookings',
                   color: AppColors.primaryStart,
                 ),
@@ -104,27 +109,27 @@ class CustomerProfileScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
-                  _SettingsTile(
+                   _SettingsTile(
                     icon: Icons.person_outline_rounded,
                     title: 'Edit Profile',
                     color: AppColors.primaryStart,
                     onTap: () {},
                   ),
-                  _divider(),
+                  Divider(height: 1, indent: 68, color: Colors.grey.shade100),
                   _SettingsTile(
                     icon: Icons.notifications_outlined,
                     title: 'Notifications',
                     color: AppColors.accentAlt,
                     onTap: () {},
                   ),
-                  _divider(),
+                  Divider(height: 1, indent: 68, color: Colors.grey.shade100),
                   _SettingsTile(
                     icon: Icons.help_outline_rounded,
                     title: 'Help & Support',
                     color: AppColors.success,
                     onTap: () {},
                   ),
-                  _divider(),
+                  Divider(height: 1, indent: 68, color: Colors.grey.shade100),
                   _SettingsTile(
                     icon: Icons.logout_rounded,
                     title: 'Logout',
@@ -140,10 +145,6 @@ class CustomerProfileScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Widget _divider() {
-    return Divider(height: 1, indent: 68, color: Colors.grey.shade100);
   }
 }
 
