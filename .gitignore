@@ -55,3 +55,12 @@ coverage/
 *.g.dart
 *.freezed.dart
 *.mocks.dart
+
+# 🔐 SENSITIVE FILES - DO NOT COMMIT
+lib/firebase_options.dart
+google-services.json
+GoogleService-Info.plist
+**/google-services.json
+**/GoogleService-Info.plist
+.env
+.env.*
